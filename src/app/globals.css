@@ -1,0 +1,282 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :where(button, [role="button"]) {
+    transition:
+      transform 140ms cubic-bezier(0.2, 0.9, 0.2, 1),
+      filter 140ms cubic-bezier(0.2, 0.9, 0.2, 1),
+      box-shadow 140ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    will-change: transform;
+  }
+
+  :where(button, [role="button"]):not(:disabled):active {
+    transform: translateY(1px) scale(0.985);
+    filter: brightness(0.98);
+  }
+
+  :where(button, [role="button"]):disabled {
+    cursor: not-allowed;
+  }
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  font-family:
+    var(--font-pixel), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
+    rgb(var(--background-start-rgb));
+}
+
+html.gg-scroll-lock,
+body.gg-scroll-lock {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+.gg-retro {
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 0 12px rgba(255, 255, 255, 0.04);
+}
+
+.gg-pixel-title {
+  font-family:
+    var(--font-pixel),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.65),
+    1px 0 0 rgba(0, 0, 0, 0.65),
+    0 -1px 0 rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 3px 0 rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 255, 255, 0.08),
+    0 0 48px rgba(255, 255, 255, 0.035);
+  text-rendering: geometricPrecision;
+}
+
+.gg-pixel-border {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.11),
+    0 0 0 3px rgba(0, 0, 0, 0.35),
+    0 14px 38px rgba(0, 0, 0, 0.35);
+}
+
+.gg-scanlines {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 100% 6px;
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+}
+
+.gg-text-shimmer {
+  position: relative;
+  display: inline-block;
+}
+
+.gg-text-shimmer > span {
+  position: relative;
+  z-index: 1;
+}
+
+.gg-text-shimmer::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  pointer-events: none;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  white-space: pre-wrap;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.95) 45%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 260% 100%;
+  background-position: 120% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
+  will-change: background-position;
+  animation: gg-text-shimmer 3.4s ease-in-out infinite;
+}
+
+.gg-text-shimmer:hover::after {
+  opacity: 1;
+  animation-duration: 2.1s;
+}
+
+@keyframes gg-text-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  45% {
+    background-position: -60% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gg-text-shimmer::after {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+
+@keyframes gg-float {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -16px, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes gg-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(14px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.gg-world-tab-pulse {
+  animation: gg-world-tab-pulse 560ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes gg-world-tab-pulse {
+  0% {
+    transform: translateZ(0) scale(1);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  45% {
+    transform: translateZ(0) scale(1.06);
+    box-shadow: 0 0 28px rgba(255, 255, 255, 0.22);
+  }
+  75% {
+    transform: translateZ(0) scale(1.02);
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.14);
+  }
+  100% {
+    transform: translateZ(0) scale(1);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.gg-world-tab-hit {
+  animation: gg-world-tab-hit 720ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes gg-world-tab-hit {
+  0% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  35% {
+    transform: translateZ(0) scale(1.08) rotate(-1.4deg);
+    box-shadow: 0 0 34px rgba(255, 255, 255, 0.22);
+  }
+  55% {
+    transform: translateZ(0) scale(1.05) rotate(1.2deg);
+    box-shadow: 0 0 26px rgba(255, 255, 255, 0.18);
+  }
+  75% {
+    transform: translateZ(0) scale(1.02) rotate(-0.6deg);
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.12);
+  }
+  100% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.gg-fall {
+  animation: gg-fall var(--gg-fall-dur, 18s) linear infinite;
+  animation-delay: var(--gg-fall-delay, 0s);
+  will-change: transform;
+}
+
+.gg-sway {
+  animation: gg-sway var(--gg-sway-dur, 7s) ease-in-out infinite;
+  animation-delay: var(--gg-sway-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes gg-fall {
+  0% {
+    transform: translate3d(0, -30vh, 0);
+  }
+  100% {
+    transform: translate3d(0, 200vh, 0);
+  }
+}
+
+@keyframes gg-sway {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate3d(18px, 0, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+}
+
+.gg-float {
+  animation: gg-float var(--gg-float-dur, 14s) ease-in-out infinite;
+  animation-delay: var(--gg-float-delay, 0s);
+}
+
+.gg-drift {
+  animation: gg-drift var(--gg-drift-dur, 18s) ease-in-out infinite;
+  animation-delay: var(--gg-drift-delay, 0s);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

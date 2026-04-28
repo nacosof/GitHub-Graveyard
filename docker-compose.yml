@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: gg
+      POSTGRES_PASSWORD: gg
+      POSTGRES_DB: gg
+    volumes:
+      - gg_pg_data:/var/lib/postgresql/data
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+
+volumes:
+  gg_pg_data:

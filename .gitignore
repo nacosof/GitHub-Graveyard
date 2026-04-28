@@ -1,0 +1,50 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+DATABASE.md
+ARCHITECTURE_PRIVATE.md
+*.log
+*.sql
+*.dump
+*.bak
+
+# IDE
+.vscode/
+.idea/
+
+# local docker overrides
+docker-compose.override.yml
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+/src/generated/prisma

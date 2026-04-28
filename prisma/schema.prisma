@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  verified      Boolean   @default(false)
+  isAdmin       Boolean   @default(false)
+  candles       Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastSeenAt    DateTime?
+
+  listingsCreated     Listing[]            @relation("UserListingsCreated")
+  listingVotes        ListingVote[]
+  candleContributions CandleContribution[]
+
+  accounts Account[]
+  sessions Session[]
+}
+
+model EmailVerification {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String
+  passwordHash String
+  code         String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum ListingCategory {
+  abandoned
+  finished
+  underrated
+}
+
+model Listing {
+  id              String          @id @default(cuid())
+  repoSlug        String          @unique
+  category        ListingCategory
+  candlesUsd      Int             @default(0)
+  createdByUser   User?           @relation("UserListingsCreated", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdByUserId String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  votes         ListingVote[]
+  contributions CandleContribution[]
+
+  @@index([category])
+  @@index([candlesUsd])
+}
+
+model ListingVote {
+  id        String          @id @default(cuid())
+  listing   Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  category  ListingCategory
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([listingId, userId])
+  @@index([listingId])
+  @@index([userId])
+}
+
+model CandleContribution {
+  id        String   @id @default(cuid())
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  amountUsd Int      @default(1)
+  source    String
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+  @@index([userId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

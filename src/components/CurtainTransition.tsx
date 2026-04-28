@@ -154,7 +154,7 @@ function GhostHand({ side }: { side: "left" | "right" }) {
 
 export function CurtainTransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [phase, setPhase] = useState<"idle" | "closing" | "opening">("idle");
+  const [phase, setPhase] = useState<"idle" | "closing" | "opening" | "fadeout">("idle");
   const targetRef = useRef<string | null>(null);
   const lockRef = useRef(false);
 
@@ -175,10 +175,14 @@ export function CurtainTransitionProvider({ children }: { children: React.ReactN
       }, 720);
 
       window.setTimeout(() => {
+        setPhase("fadeout");
+      }, 1320);
+
+      window.setTimeout(() => {
         setPhase("idle");
         lockRef.current = false;
         targetRef.current = null;
-      }, 1320);
+      }, 1540);
     },
     [router],
   );
@@ -240,37 +244,51 @@ export function CurtainTransitionProvider({ children }: { children: React.ReactN
   );
 }
 
-function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" }) {
+function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" | "fadeout" }) {
   const [closed, setClosed] = useState(false);
-  const [handsFade, setHandsFade] = useState(false);
+  const [fadeAll, setFadeAll] = useState(false);
 
   useEffect(() => {
     if (phase === "idle") return;
-    setHandsFade(false);
-    const id = window.setTimeout(() => {
-      setClosed(phase === "closing");
-    }, 16);
-    const fadeId =
-      phase === "closing"
-        ? window.setTimeout(() => {
-            setHandsFade(true);
-          }, 560)
-        : window.setTimeout(() => setHandsFade(true), 0);
-    return () => {
-      window.clearTimeout(id);
-      window.clearTimeout(fadeId);
-    };
+    if (phase === "closing") {
+      setFadeAll(false);
+      setClosed(false);
+      const id = window.requestAnimationFrame(() => setClosed(true));
+      return () => window.cancelAnimationFrame(id);
+    }
+    if (phase === "opening") {
+      setFadeAll(false);
+      setClosed(true);
+      const id = window.requestAnimationFrame(() => setClosed(false));
+      return () => window.cancelAnimationFrame(id);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "fadeout") return;
+    setFadeAll(true);
   }, [phase]);
 
   if (phase === "idle") return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999]">
+    <div
+      className={
+        "pointer-events-none fixed inset-0 z-[9999] transition-opacity duration-300 ease-out " +
+        (fadeAll ? "opacity-0" : "opacity-100")
+      }
+    >
+      <div
+        className={
+          "absolute inset-0 bg-black/40 transition-opacity duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
+          (closed ? "opacity-100" : "opacity-0")
+        }
+      />
       <div className="absolute inset-0">
         <div
           className={
             "absolute inset-y-0 left-0 w-1/2 bg-black/95 " +
-            "transition-transform duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)]" +
+            "transition-transform duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
             (closed ? "translate-x-0" : "-translate-x-full")
           }
         >
@@ -286,7 +304,7 @@ function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" }) {
         <div
           className={
             "absolute inset-y-0 right-0 w-1/2 bg-black/95 " +
-            "transition-transform duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)]" +
+            "transition-transform duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
             (closed ? "translate-x-0" : "translate-x-full")
           }
         >
@@ -305,12 +323,12 @@ function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" }) {
         <div
           className={
             "transition-[transform,opacity] duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
-            (handsFade ? "opacity-0" : "opacity-100")
+            "opacity-100"
           }
           style={{
             transform: closed
               ? "translate3d(calc(50vw - 158px), 0, 0)"
-              : "translate3d(-52px, 0, 0)",
+              : "translate3d(-240px, 0, 0)",
             transformOrigin: "100% 50%",
           }}
         >
@@ -323,12 +341,12 @@ function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" }) {
         <div
           className={
             "transition-[transform,opacity] duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
-            (handsFade ? "opacity-0" : "opacity-100")
+            "opacity-100"
           }
           style={{
             transform: closed
               ? "translate3d(calc(-50vw + 158px), 0, 0)"
-              : "translate3d(52px, 0, 0)",
+              : "translate3d(240px, 0, 0)",
             transformOrigin: "0% 50%",
           }}
         >
@@ -338,7 +356,13 @@ function CurtainOverlay({ phase }: { phase: "idle" | "closing" | "opening" }) {
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-black/40 [mask-image:radial-gradient(60%_60%_at_50%_50%,transparent,black)]" />
+      <div
+        className={
+          "absolute inset-0 bg-black/40 [mask-image:radial-gradient(60%_60%_at_50%_50%,transparent,black)] " +
+          "transition-opacity duration-[520ms] ease-[cubic-bezier(.2,.9,.2,1)] " +
+          (closed ? "opacity-100" : "opacity-0")
+        }
+      />
     </div>
   );
 }

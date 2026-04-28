@@ -549,9 +549,12 @@ function ListingPanel({
 
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
                       <div className="mb-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-white/60">
-                        <div>Ваши свечи: {candlesBalance}</div>
+                        <div>
+                          Ваши свечи: {Math.max(0, candlesBalance - (draftAddCandles ?? 0))}
+                        </div>
                         <div className="text-white/70">
-                          макс. {spentForListing}/{maxForListing}
+                          макс. {Math.min(maxForListing, spentForListing + (draftAddCandles ?? 0))}/
+                          {maxForListing}
                         </div>
                       </div>
 

@@ -549,9 +549,9 @@ function ListingPanel({
 
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
                       <div className="mb-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-white/60">
-                        <div>Ваши свечи</div>
+                        <div>Ваши свечи: {candlesBalance}</div>
                         <div className="text-white/70">
-                          {spentForListing}/{maxForListing}
+                          макс. {spentForListing}/{maxForListing}
                         </div>
                       </div>
 

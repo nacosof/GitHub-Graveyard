@@ -1,5 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
-import type { Adapter } from "next-auth/adapters";
+import type { Adapter, AdapterUser } from "next-auth/adapters";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -35,7 +35,7 @@ async function generateUniqueUsername(seed: string) {
 const defaultAdapter = PrismaAdapter(prisma);
 const adapter: Adapter = {
   ...defaultAdapter,
-  async createUser(data) {
+  async createUser(data: Omit<AdapterUser, "id">) {
     const username = await generateUniqueUsername(buildUsernameSeed(data));
     return prisma.user.create({
       data: {

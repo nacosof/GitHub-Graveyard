@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 
 import { AuthGhost } from "@/features/auth/AuthGhost";
 import { AuthEpitaph } from "@/features/auth/AuthEpitaph";
@@ -34,7 +34,6 @@ function GoogleMark({ className }: { className?: string }) {
 
 export function LoginForm() {
   const t = useTranslations("Auth");
-  const router = useRouter();
   const locale = useLocale() as Locale;
   const curtain = useCurtainTransition();
   const [username, setUsername] = useState("");
@@ -44,6 +43,13 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successPulse, setSuccessPulse] = useState(0);
+
+  const startOauth = async (provider: "github" | "google") => {
+    setError(null);
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    await signOut({ redirect: false }).catch(() => null);
+    await signIn(provider, { callbackUrl: `/api/auth/oauth/bridge?next=/${locale}` });
+  };
 
   return (
     <form
@@ -143,9 +149,7 @@ export function LoginForm() {
       <div className="mt-4 grid gap-2">
         <button
           type="button"
-          onClick={() =>
-            signIn("github", { callbackUrl: `/api/auth/oauth/bridge?next=/${locale}` })
-          }
+          onClick={() => startOauth("github")}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
         >
           <GitHubMark className="size-4 text-white/85" />
@@ -153,9 +157,7 @@ export function LoginForm() {
         </button>
         <button
           type="button"
-          onClick={() =>
-            signIn("google", { callbackUrl: `/api/auth/oauth/bridge?next=/${locale}` })
-          }
+          onClick={() => startOauth("google")}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
         >
           <GoogleMark className="size-4 text-white/85" />

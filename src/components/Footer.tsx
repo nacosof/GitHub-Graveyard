@@ -3,12 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCurtainTransition } from "@/components/CurtainTransition";
 
 export function Footer() {
   const t = useTranslations("Footer");
   const locale = useLocale();
+  const pathname = usePathname();
   const curtain = useCurtainTransition();
   const [authed, setAuthed] = useState<boolean | null>(null);
 
@@ -27,7 +29,7 @@ export function Footer() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <footer className="border-t border-white/10 bg-[#05060a] text-white">

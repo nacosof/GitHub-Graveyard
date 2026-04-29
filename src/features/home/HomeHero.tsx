@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { LanguageToggle } from "@/features/i18n/LanguageToggle";
@@ -14,6 +14,7 @@ export function HomeHero() {
   const ta = useTranslations("Auth");
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const pathname = usePathname();
   const curtain = useCurtainTransition();
   const [authed, setAuthed] = useState<boolean | null>(null);
 
@@ -32,7 +33,7 @@ export function HomeHero() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="flex items-start justify-between gap-6">

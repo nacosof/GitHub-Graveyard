@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import { useCurtainTransition } from "@/components/CurtainTransition";
 
 type MeResponse =
@@ -119,6 +120,9 @@ export default function ProfilePage() {
                     type="button"
                     onClick={async () => {
                       await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+                      // `signOut` очищает NextAuth cookie/DB session, чтобы `/api/auth/me` стал `user: null`.
+                      await signOut({ redirect: false }).catch(() => null);
+                      setMe({ user: null });
                       router.push(`/${locale}`);
                       router.refresh();
                     }}

@@ -34,11 +34,6 @@ export async function POST() {
 export async function GET(req: NextRequest) {
   const res = await bridge();
   const next = normalizeNext(req.nextUrl.searchParams.get("next"));
-  if (!res.ok) {
-    const url = new URL("/en/login", req.url);
-    url.searchParams.set("error", "OAuthSession");
-    return NextResponse.redirect(url);
-  }
   const url = new URL(next, req.url);
   return NextResponse.redirect(url);
 }

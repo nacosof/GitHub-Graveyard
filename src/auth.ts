@@ -37,16 +37,21 @@ const adapter: Adapter = {
   ...defaultAdapter,
   async createUser(data: Omit<AdapterUser, "id">) {
     const username = await generateUniqueUsername(buildUsernameSeed(data));
-    return prisma.user.create({
+    // NextAuth adapter types expect `email` to be a string, but some providers can return null.
+    // User model allows nullable email, so we coerce to a deterministic placeholder.
+    const safeEmail = data.email ?? `${username}@oauth.local`;
+    const created = await prisma.user.create({
       data: {
         username,
-        email: data.email,
+        email: safeEmail,
         name: data.name,
         image: data.image,
         emailVerified: data.emailVerified ?? null,
         verified: true,
       },
     });
+    // Prisma model has `email: string | null`, but adapter expects `email: string`.
+    return { ...created, email: created.email ?? safeEmail };
   },
 };
 

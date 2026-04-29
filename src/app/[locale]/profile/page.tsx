@@ -120,11 +120,9 @@ export default function ProfilePage() {
                     type="button"
                     onClick={async () => {
                       await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
-                      // `signOut` очищает NextAuth cookie/DB session, чтобы `/api/auth/me` стал `user: null`.
                       await signOut({ redirect: false }).catch(() => null);
                       setMe({ user: null });
-                      router.push(`/${locale}`);
-                      router.refresh();
+                      curtain.playTo(`/${locale}`);
                     }}
                     className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/90 hover:border-white/20 hover:bg-black/30"
                   >

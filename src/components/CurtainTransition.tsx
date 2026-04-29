@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { CandleIcon, TombstoneIcon } from "@/features/graveyard/components/Icons";
 
@@ -154,37 +154,52 @@ function GhostHand({ side }: { side: "left" | "right" }) {
 
 export function CurtainTransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [phase, setPhase] = useState<"idle" | "closing" | "opening" | "fadeout">("idle");
   const targetRef = useRef<string | null>(null);
+  const targetPathnameRef = useRef<string | null>(null);
   const lockRef = useRef(false);
+  const phaseRef = useRef(phase);
+  const timersRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach((t) => window.clearTimeout(t));
+    timersRef.current = [];
+  }, []);
 
   const playTo = useCallback(
     (href: string) => {
       if (lockRef.current) return;
       lockRef.current = true;
       targetRef.current = href;
+      targetPathnameRef.current = (() => {
+        try {
+          return new URL(href, window.location.href).pathname;
+        } catch {
+          return null;
+        }
+      })();
+      clearTimers();
       setPhase("closing");
 
       window.setTimeout(() => {
         const to = targetRef.current;
-        if (to) router.push(to);
+        if (!to) return;
+        router.push(to);
       }, 520);
 
-      window.setTimeout(() => {
-        setPhase("opening");
-      }, 720);
-
-      window.setTimeout(() => {
-        setPhase("fadeout");
-      }, 1320);
-
-      window.setTimeout(() => {
-        setPhase("idle");
-        lockRef.current = false;
-        targetRef.current = null;
-      }, 1540);
+      timersRef.current.push(
+        window.setTimeout(() => {
+          if (phaseRef.current !== "closing") return;
+          setPhase("opening");
+        }, 2000),
+      );
     },
-    [router],
+    [router, clearTimers],
   );
 
   useEffect(() => {
@@ -233,6 +248,27 @@ export function CurtainTransitionProvider({ children }: { children: React.ReactN
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
   }, [playTo]);
+
+  useEffect(() => {
+    if (phase !== "closing") return;
+    const targetPath = targetPathnameRef.current;
+    if (!targetPath) return;
+    if (pathname !== targetPath) return;
+
+    // Page is mounted -> open curtains.
+    setPhase("opening");
+    clearTimers();
+    timersRef.current.push(
+      window.setTimeout(() => setPhase("fadeout"), 600),
+      window.setTimeout(() => {
+        setPhase("idle");
+        lockRef.current = false;
+        targetRef.current = null;
+        targetPathnameRef.current = null;
+        clearTimers();
+      }, 820),
+    );
+  }, [pathname, phase, clearTimers]);
 
   const api = useMemo<CurtainApi>(() => ({ playTo, isPlaying: phase !== "idle" }), [playTo, phase]);
 

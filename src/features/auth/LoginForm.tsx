@@ -46,9 +46,7 @@ export function LoginForm() {
 
   const startOauth = async (provider: "github" | "google") => {
     setError(null);
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
-    await signOut({ redirect: false }).catch(() => null);
-    await signIn(provider, { callbackUrl: `/api/auth/oauth/bridge?next=/${locale}` });
+    window.location.href = `/api/auth/start-oauth?provider=${provider}&next=/${locale}`;
   };
 
   return (

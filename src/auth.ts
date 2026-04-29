@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -7,8 +8,50 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
 
+function buildUsernameSeed(data: { email?: string | null; name?: string | null }) {
+  const fromEmail = data.email?.split("@")[0]?.trim() ?? "";
+  const fromName = data.name?.trim() ?? "";
+  const raw = fromEmail || fromName || "user";
+  const cleaned = raw.toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+  return cleaned.slice(0, 20) || "user";
+}
+
+async function generateUniqueUsername(seed: string) {
+  const base = seed || "user";
+  let candidate = base;
+  let attempt = 0;
+  while (attempt < 20) {
+    const exists = await prisma.user.findUnique({
+      where: { username: candidate },
+      select: { id: true },
+    });
+    if (!exists) return candidate;
+    attempt += 1;
+    candidate = `${base.slice(0, 14)}_${Math.random().toString(36).slice(2, 7)}`;
+  }
+  return `${base.slice(0, 14)}_${Date.now().toString(36).slice(-6)}`;
+}
+
+const defaultAdapter = PrismaAdapter(prisma);
+const adapter: Adapter = {
+  ...defaultAdapter,
+  async createUser(data) {
+    const username = await generateUniqueUsername(buildUsernameSeed(data));
+    return prisma.user.create({
+      data: {
+        username,
+        email: data.email,
+        name: data.name,
+        image: data.image,
+        emailVerified: data.emailVerified ?? null,
+        verified: true,
+      },
+    });
+  },
+};
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter,
   session: { strategy: "database" },
   providers: [
     GitHubProvider({

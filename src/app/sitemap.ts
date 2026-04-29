@@ -14,6 +14,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "register",
     "forgot-password",
     "profile",
+    "privacy",
+    "terms",
+    "dmca",
+    "security",
   ];
 
   const urls: MetadataRoute.Sitemap = [];

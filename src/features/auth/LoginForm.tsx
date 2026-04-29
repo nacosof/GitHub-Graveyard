@@ -43,9 +43,18 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successPulse, setSuccessPulse] = useState(0);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
 
   const startOauth = async (provider: "github" | "google") => {
     setError(null);
+    if (!acceptedLegal) {
+      setError(
+        locale === "ru"
+          ? "Прими Terms of Service и Privacy Policy, чтобы продолжить."
+          : "Please accept Terms of Service and Privacy Policy to continue."
+      );
+      return;
+    }
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => null); 
     await signOut({ redirect: false }).catch(() => null); 
     await fetch("/api/auth/clear-oauth-session", { method: "POST" }).catch(() => null); 
@@ -60,6 +69,16 @@ export function LoginForm() {
         setLoading(true);
         setError(null);
         setSuccessPulse(0);
+
+        if (!acceptedLegal) {
+          setLoading(false);
+          setError(
+            locale === "ru"
+              ? "Прими Terms of Service и Privacy Policy, чтобы продолжить."
+              : "Please accept Terms of Service and Privacy Policy to continue."
+          );
+          return;
+        }
 
         const r = await fetch("/api/auth/login", {
           method: "POST",
@@ -129,9 +148,30 @@ export function LoginForm() {
         </Link>
       </div>
 
+      <div className="mt-4 flex items-start gap-3 text-xs text-white/60">
+        <input
+          type="checkbox"
+          checked={acceptedLegal}
+          onChange={(e) => setAcceptedLegal(e.target.checked)}
+          className="mt-1 size-4 accent-white"
+          aria-label="Accept Terms and Privacy"
+        />
+        <p className="leading-4">
+          {locale === "ru" ? "Я согласен с " : "I agree to "}
+          <Link className="underline underline-offset-4 hover:text-white" href={`/${locale}/terms`}>
+            Terms of Service
+          </Link>{" "}
+          {locale === "ru" ? "и " : "and "}
+          <Link className="underline underline-offset-4 hover:text-white" href={`/${locale}/privacy`}>
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </div>
+
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !acceptedLegal}
         className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-medium text-black shadow-sm shadow-black/20 transition-all hover:-translate-y-[1px] hover:shadow-md hover:shadow-black/30 active:translate-y-0 active:scale-[0.98] disabled:opacity-60"
       >
         {loading ? "…" : t("submit")}
@@ -151,7 +191,8 @@ export function LoginForm() {
         <button
           type="button"
           onClick={() => startOauth("github")}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
+          disabled={!acceptedLegal}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <GitHubMark className="size-4 text-white/85" />
           {t("continueWithGitHub")}
@@ -159,7 +200,8 @@ export function LoginForm() {
         <button
           type="button"
           onClick={() => startOauth("google")}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
+          disabled={!acceptedLegal}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <GoogleMark className="size-4 text-white/85" />
           {t("continueWithGoogle")}

@@ -17,6 +17,7 @@ export function RegisterForm() {
   const locale = useLocale() as Locale;
 
   const [step, setStep] = useState<"form" | "verify">("form");
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,6 +72,15 @@ export function RegisterForm() {
         setSuccessPulse(0);
 
         if (step === "form") {
+          if (!acceptedLegal) {
+            setError(
+              locale === "ru"
+                ? "Прими Terms of Service и Privacy Policy, чтобы продолжить."
+                : "Please accept Terms of Service and Privacy Policy to continue."
+            );
+            return;
+          }
+
           if (!usernameOk(cleanedUsername)) {
             setError(t("errorUsernameInvalid"));
             return;
@@ -199,6 +209,30 @@ export function RegisterForm() {
               {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
+
+          <div className="mt-4 flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={acceptedLegal}
+              onChange={(e) => setAcceptedLegal(e.target.checked)}
+              className="mt-1 size-4 accent-white"
+              aria-label="Accept Terms and Privacy"
+            />
+            <p className="text-xs leading-4 text-white/60">
+              {locale === "ru" ? "Я согласен с " : "I agree to "}
+              <Link className="underline underline-offset-4 hover:text-white" href={`/${locale}/terms`}>
+                Terms of Service
+              </Link>{" "}
+              {locale === "ru" ? "и " : "and "}
+              <Link
+                className="underline underline-offset-4 hover:text-white"
+                href={`/${locale}/privacy`}
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </div>
         </>
       ) : (
         <>
@@ -228,7 +262,7 @@ export function RegisterForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || (step === "form" && !acceptedLegal)}
         className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-medium text-black shadow-sm shadow-black/20 hover:-translate-y-[1px] hover:shadow-md hover:shadow-black/30 disabled:opacity-60"
       >
         {loading ? "…" : step === "form" ? t("submitSignUp") : t("verify")}

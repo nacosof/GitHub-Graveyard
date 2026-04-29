@@ -88,6 +88,43 @@ export function Footer() {
               </div>
             </div>
           </div>
+
+          <div className="space-y-2 md:col-span-3">
+            <div className="text-xs font-semibold tracking-wider text-white/60">LEGAL</div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              <Link
+                className="text-white/70 hover:text-white"
+                href={`/${locale}/privacy`}
+              >
+                Privacy
+              </Link>
+              <Link
+                className="text-white/70 hover:text-white"
+                href={`/${locale}/terms`}
+              >
+                Terms
+              </Link>
+              <Link className="text-white/70 hover:text-white" href={`/${locale}/dmca`}>
+                DMCA
+              </Link>
+              <Link
+                className="text-white/70 hover:text-white"
+                href={`/${locale}/security`}
+              >
+                Security
+              </Link>
+            </div>
+          </div>
+
+          <div className="md:col-span-3 text-xs text-white/45">
+            Support:{" "}
+            <a
+              className="underline underline-offset-4 hover:text-white"
+              href="mailto:nacosof@gmail.com"
+            >
+              nacosof@gmail.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>

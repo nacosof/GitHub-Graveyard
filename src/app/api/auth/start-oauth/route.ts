@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const c = cookies();
   for (const name of NEXTAUTH_COOKIE_NAMES) c.delete(name);
 
-  const callbackUrl = `/api/auth/oauth/bridge?next=${encodeURIComponent(next)}`;
+  const callbackUrl = `/api/auth/oauth/bridge?next=${next}`;
   const signInUrl = new URL(`/api/auth/signin/${provider}`, req.url);
   signInUrl.searchParams.set("callbackUrl", callbackUrl);
 

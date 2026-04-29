@@ -7,11 +7,11 @@ import { prisma } from "@/server/db";
 
 export async function POST() {
   const session = await getServerSession(authOptions);
-  const email = session?.user?.email?.trim().toLowerCase();
+  const email = session?.user?.email?.trim();
   if (!email) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
-  const user = await prisma.user.findUnique({
-    where: { email },
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
     select: { username: true },
   });
   if (!user?.username) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });

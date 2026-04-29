@@ -59,6 +59,7 @@ export function LoginForm() {
         curtain.playTo(`/${locale}`);
         return;
       }
+      setError("OAuth login succeeded, but app session sync failed. Please try again.");
       setBridgingOauth(false);
     };
     syncOauthSession();

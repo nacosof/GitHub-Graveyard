@@ -95,6 +95,18 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google" || account?.provider === "github") {
+        const email = user.email?.trim().toLowerCase();
+        if (email) {
+          await prisma.user.updateMany({
+            where: { email },
+            data: { verified: true },
+          });
+        }
+      }
+      return true;
+    },
     async session({ session, user }) {
       if (session.user) (session.user as any).id = user.id;
       return session;

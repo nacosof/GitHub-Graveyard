@@ -5,8 +5,8 @@ import { useLocale } from "next-intl";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { getSession, signIn } from "next-auth/react";
 
 import { AuthGhost } from "@/features/auth/AuthGhost";
 import { AuthEpitaph } from "@/features/auth/AuthEpitaph";
@@ -44,6 +44,28 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successPulse, setSuccessPulse] = useState(0);
+  const [bridgingOauth, setBridgingOauth] = useState(false);
+
+  useEffect(() => {
+    if (bridgingOauth) return;
+    let cancelled = false;
+    const syncOauthSession = async () => {
+      const session = await getSession().catch(() => null);
+      if (!session?.user?.email || cancelled) return;
+      setBridgingOauth(true);
+      const r = await fetch("/api/auth/oauth/bridge", { method: "POST" }).catch(() => null);
+      if (cancelled) return;
+      if (r?.ok) {
+        curtain.playTo(`/${locale}`);
+        return;
+      }
+      setBridgingOauth(false);
+    };
+    syncOauthSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [bridgingOauth, curtain, locale]);
 
   return (
     <form
@@ -143,7 +165,7 @@ export function LoginForm() {
       <div className="mt-4 grid gap-2">
         <button
           type="button"
-          onClick={() => signIn("github")}
+          onClick={() => signIn("github", { callbackUrl: `/${locale}/login` })}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
         >
           <GitHubMark className="size-4 text-white/85" />
@@ -151,7 +173,7 @@ export function LoginForm() {
         </button>
         <button
           type="button"
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl: `/${locale}/login` })}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/85 hover:border-white/20 hover:bg-black/30"
         >
           <GoogleMark className="size-4 text-white/85" />

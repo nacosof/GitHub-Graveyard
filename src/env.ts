@@ -29,6 +29,11 @@ export const env = createEnv({
       .enum(["0", "1", "true", "false"])
       .optional()
       .transform((v) => (v ? v === "1" || v === "true" : false)),
+
+    SITE_MAINTENANCE_MODE: z
+      .enum(["0", "1", "true", "false"])
+      .optional()
+      .transform((v) => (v ? v === "1" || v === "true" : false)),
   },
   client: {},
   runtimeEnv: {
@@ -53,5 +58,6 @@ export const env = createEnv({
     NOWPAYMENTS_PAY_CURRENCY: process.env.NOWPAYMENTS_PAY_CURRENCY,
 
     DEV_CANDLES_TOPUP_CREDIT: process.env.DEV_CANDLES_TOPUP_CREDIT,
+    SITE_MAINTENANCE_MODE: process.env.SITE_MAINTENANCE_MODE,
   },
 });

@@ -185,6 +185,7 @@
     "donatedLabel": "Donated total",
     "topupCta": "Top up candles",
     "topupHint": "1 USDT per candle",
+    "topupMinHint": "Minimum: {min}",
     "topupAmountLabel": "Amount",
     "topupPriceLabel": "Total",
     "topupPay": "Pay",

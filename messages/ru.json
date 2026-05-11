@@ -181,6 +181,7 @@
     "donatedLabel": "Отдано всего",
     "topupCta": "Пополнить свечи",
     "topupHint": "1 USDT за 1 свечу",
+    "topupMinHint": "Минимум: {min}",
     "topupAmountLabel": "Количество",
     "topupPriceLabel": "Итого",
     "topupPay": "Оплатить",

@@ -168,7 +168,10 @@ export default function ProfilePage() {
                   <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 p-4">
                     <div className="flex items-center justify-between gap-3 text-xs font-semibold text-white/70">
                       <div>{tp("topupAmountLabel")}</div>
-                      <div className="text-white/55">{tp("topupHint")}</div>
+                      <div className="text-right text-white/55">
+                        <div>{tp("topupHint")}</div>
+                        <div>{tp("topupMinHint", { min: MIN_TOPUP })}</div>
+                      </div>
                     </div>
 
                     <div className="mt-2 flex gap-2" />

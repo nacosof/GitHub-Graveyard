@@ -6,6 +6,8 @@ import enMessages from "../../../messages/en.json";
 import ruMessages from "../../../messages/ru.json";
 import { setRequestLocale } from "next-intl/server";
 import { Footer } from "@/components/Footer";
+import { siteSettings } from "../../../siteSettings";
+import MaintenancePage from "../maintenance/page";
 
 const SEO_DESCRIPTION =
   "GitHub Graveyard is a curated graveyard for open‑source repos: discover forgotten GitHub projects, read the signals (commits, issues, PRs, stars), tag their status, and help the worth‑saving ones rise again.";
@@ -108,7 +110,7 @@ export default async function LocaleLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {children}
+      {siteSettings.maintenanceMode ? <MaintenancePage /> : children}
       <Footer />
     </NextIntlClientProvider>
   );

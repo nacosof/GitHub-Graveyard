@@ -128,6 +128,11 @@ export default function PrivacyPage({ params }: { params: { locale: string } }) 
                 {isRu ? "OAuth-провайдеры: GitHub и Google." : "OAuth providers: GitHub and Google."}
               </li>
               <li>
+                {isRu
+                  ? "Платёжный провайдер (для пополнения виртуальных «свечей»): NOWPayments. Мы передаём данные, необходимые для создания заказа/инвойса и обработки статусов оплаты."
+                  : "Payment provider (for topping up virtual “candles”): NOWPayments. We share the data required to create an order/invoice and process payment status updates."}
+              </li>
+              <li>
                 {isRu ? "Email-провайдер: Resend или SMTP (если настроен)." : "Email provider: Resend or SMTP (if configured)."}
               </li>
               <li>

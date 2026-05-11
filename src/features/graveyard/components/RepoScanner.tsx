@@ -550,20 +550,20 @@ function ListingPanel({
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
                       <div className="mb-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-white/60">
                         <div>
-                          Ваши свечи: {Math.max(0, candlesBalance - (draftAddCandles ?? 0))}
+                          {tl("candleBalanceLabel")}{" "}
+                          {Math.max(0, candlesBalance - (draftAddCandles ?? 0))}
                         </div>
                         <div className="text-white/70">
-                          макс. {Math.min(maxForListing, spentForListing + (draftAddCandles ?? 0))}/
+                          {tl("candleMaxLabel")}{" "}
+                          {Math.min(maxForListing, spentForListing + (draftAddCandles ?? 0))}/
                           {maxForListing}
                         </div>
                       </div>
 
                       {draftCategory && candlesBalance <= 0 ? (
                         <div className="mb-3 rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white/70">
-                          <div className="font-semibold text-white/80">У вас нет свечей</div>
-                          <div className="mt-1">
-                            Пополните баланс, чтобы поставить свечку проекту.
-                          </div>
+                          <div className="font-semibold text-white/80">{tl("candleNoCandlesTitle")}</div>
+                          <div className="mt-1">{tl("candleNoCandlesText")}</div>
                           <button
                             type="button"
                             onClick={() => {
@@ -574,17 +574,15 @@ function ListingPanel({
                             }}
                             className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-xl bg-white px-3 text-xs font-semibold text-black shadow-sm shadow-black/20 transition-all hover:-translate-y-[1px] hover:shadow-md hover:shadow-black/30 active:translate-y-0 active:scale-[0.98]"
                           >
-                            Пополнить свечи
+                            {tl("candleTopupCta")}
                           </button>
                         </div>
                       ) : null}
 
                       {draftCategory && candlesBalance > 0 && remainingForListing <= 0 ? (
                         <div className="mb-3 rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white/70">
-                          <div className="font-semibold text-white/80">Лимит достигнут</div>
-                          <div className="mt-1">
-                            Вы уже поставили максимум свечей этому проекту.
-                          </div>
+                          <div className="font-semibold text-white/80">{tl("candleLimitTitle")}</div>
+                          <div className="mt-1">{tl("candleLimitText")}</div>
                         </div>
                       ) : null}
 
@@ -606,9 +604,9 @@ function ListingPanel({
                           !draftCategory
                             ? tl("setCategoryFirst")
                             : candlesBalance <= 0
-                              ? "Нет свечей на аккаунте"
+                              ? tl("candleTooltipNoCandles")
                               : remainingForListing <= 0
-                                ? "Лимит 5 свечей на проект достигнут"
+                                ? tl("candleTooltipLimitReached")
                                 : tl("candleTitle")
                         }
                       >

@@ -2,7 +2,9 @@ GitHub Graveyard is a web app for discovering forgotten open-source repositories
 
 ## Status
 
-This project is **still in development**. A public link to the live app will be added later.
+This project is **still in development**, but the app is already live:
+
+- https://gitgrave.com/
 
 ## Features
 

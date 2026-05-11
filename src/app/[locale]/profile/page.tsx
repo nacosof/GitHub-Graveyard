@@ -31,7 +31,7 @@ export default function ProfilePage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [topupOpen, setTopupOpen] = useState(false);
-  const [topupAmount, setTopupAmount] = useState<number>(10);
+  const [topupAmount, setTopupAmount] = useState<number>(15);
   const [topupLoading, setTopupLoading] = useState(false);
 
   useEffect(() => {
@@ -56,8 +56,9 @@ export default function ProfilePage() {
     };
   }, [locale, router]);
 
+  const MIN_TOPUP = 15;
   const MAX_TOPUP = 1000;
-  const topupCandles = Math.max(0, Math.min(MAX_TOPUP, Math.trunc(topupAmount || 0)));
+  const topupCandles = Math.max(MIN_TOPUP, Math.min(MAX_TOPUP, Math.trunc(topupAmount || 0)));
 
   return (
     <main className="min-h-screen bg-[#05060a] text-white">
@@ -178,19 +179,21 @@ export default function ProfilePage() {
                         onChange={(e) => {
                           const raw = e.target.value.replace(/[^\d]/g, "");
                           const n = raw ? Number(raw) : 0;
-                          const next = Number.isFinite(n) ? Math.min(MAX_TOPUP, n) : 0;
+                          const next = Number.isFinite(n)
+                            ? Math.max(MIN_TOPUP, Math.min(MAX_TOPUP, n))
+                            : MIN_TOPUP;
                           setTopupAmount(next);
                         }}
                         inputMode="numeric"
                         className="h-11 w-full rounded-xl border border-white/10 bg-black/50 px-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/20"
-                        placeholder="10"
+                        placeholder={String(MIN_TOPUP)}
                       />
                     </div>
 
                     <div className="mt-3">
                       <input
                         type="range"
-                        min={0}
+                        min={MIN_TOPUP}
                         max={MAX_TOPUP}
                         value={topupCandles}
                         onChange={(e) => {
@@ -222,18 +225,23 @@ export default function ProfilePage() {
                       type="button"
                       disabled={topupLoading || topupCandles <= 0}
                       onClick={async () => {
-                        if (process.env.NODE_ENV === "production") return;
                         setTopupLoading(true);
                         const r = await fetch("/api/candles/topup", {
                           method: "POST",
                           headers: { "content-type": "application/json" },
-                          body: JSON.stringify({ amount: topupCandles }),
+                          body: JSON.stringify({ amount: topupCandles, returnPath: `/${locale}/profile` }),
                         }).catch(() => null);
                         setTopupLoading(false);
                         if (!r?.ok) return;
-                        const next = (await r.json().catch(() => null)) as {
-                          candles?: number;
-                        } | null;
+                        const next = (await r.json().catch(() => null)) as
+                          | { candles?: number; payment_url?: string }
+                          | null;
+
+                        if (next?.payment_url) {
+                          window.location.href = next.payment_url;
+                          return;
+                        }
+
                         if (typeof next?.candles !== "number") return;
                         const candles = next.candles;
                         setMe((prev) => {
@@ -243,9 +251,7 @@ export default function ProfilePage() {
                       }}
                       className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white/90 hover:border-white/20 hover:bg-black/30 disabled:opacity-60"
                     >
-                      {process.env.NODE_ENV === "production"
-                        ? tp("topupComingSoon")
-                        : topupLoading
+                      {topupLoading
                           ? "…"
                           : tp("topupPay")}
                     </button>

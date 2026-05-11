@@ -25,6 +25,7 @@ model User {
   listingsCreated     Listing[]            @relation("UserListingsCreated")
   listingVotes        ListingVote[]
   candleContributions CandleContribution[]
+  candleTopups        CandleTopup[]
 
   accounts Account[]
   sessions Session[]
@@ -98,6 +99,26 @@ model CandleContribution {
 
   @@index([listingId])
   @@index([userId])
+}
+
+model CandleTopup {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  amountCandles Int
+
+  provider      String   // "nowpayments"
+  providerRef   String?  @unique // payment_id or other provider identifier
+  status        String
+  paymentUrl    String?
+  creditedAt    DateTime?
+  raw           Json?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model Account {

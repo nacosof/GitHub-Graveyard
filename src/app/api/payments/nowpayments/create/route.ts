@@ -7,11 +7,7 @@ import { prisma } from "@/server/db";
 import { nowPaymentsCreateInvoice } from "@/server/payments/nowpayments";
 
 const BodySchema = z.object({
-  amount: z.coerce.number().int().min(15).max(1000).default(15),
-  returnPath: z
-    .string()
-    .optional()
-    .transform((v) => (typeof v === "string" && v.startsWith("/") ? v : "/")),
+  amount: z.coerce.number().int().min(15).max(1000),
 });
 
 export async function POST(req: Request) {
@@ -21,15 +17,6 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
-
-  if (env.DEV_CANDLES_TOPUP_CREDIT) {
-    const updated = await prisma.user.update({
-      where: { username: user.username },
-      data: { candles: { increment: parsed.data.amount } },
-      select: { candles: true },
-    });
-    return NextResponse.json({ ok: true, candles: updated.candles });
-  }
 
   const dbUser = await prisma.user.findUnique({
     where: { username: user.username },
@@ -42,7 +29,6 @@ export async function POST(req: Request) {
   const payCurrency = (env.NOWPAYMENTS_PAY_CURRENCY ?? "usdttrc20").toLowerCase();
   const ipnCallbackUrl = env.NOWPAYMENTS_IPN_URL;
   const origin = new URL(req.url).origin;
-  const returnPath = parsed.data.returnPath ?? "/";
 
   const topup = await prisma.candleTopup.create({
     data: {
@@ -61,11 +47,8 @@ export async function POST(req: Request) {
     order_id: topup.id,
     order_description: `Top up candles: ${amountCandles}`,
     ipn_callback_url: ipnCallbackUrl,
-    success_url: `${origin}${returnPath}`,
-    cancel_url: `${origin}${returnPath}`,
-  }).catch((e: unknown) => {
-    const message = e instanceof Error ? e.message : "Failed to create payment";
-    throw new Error(message);
+    success_url: `${origin}/`,
+    cancel_url: `${origin}/`,
   });
 
   await prisma.candleTopup.update({
@@ -84,3 +67,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true, payment_url: invoice.invoice_url });
 }
+

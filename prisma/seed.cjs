@@ -10,6 +10,8 @@ async function main() {
 
   if (!email || !username || !password) return;
 
+  const passwordHash = await bcrypt.hash(password, 10);
+
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email }, { username }] },
     select: { id: true },
@@ -18,12 +20,11 @@ async function main() {
   if (existing) {
     await prisma.user.update({
       where: { id: existing.id },
-      data: { email, username, isAdmin: true, verified: true },
+      data: { email, username, passwordHash, isAdmin: true, verified: true },
     });
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
   await prisma.user.create({
     data: {
       email,

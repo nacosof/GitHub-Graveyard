@@ -6,6 +6,11 @@ This project is **still in development**, but the app is already live:
 
 - https://gitgrave.com/
 
+## Links
+
+- X (Twitter): https://x.com/gitgrave?s=21
+- Contact: nacosof@gmail.com
+
 ## Features
 
 - Find projects you care about and quickly read GitHub signals (stars, issues, activity).
